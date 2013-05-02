@@ -8,8 +8,8 @@ Gem::Specification.new do |spec|
   spec.version       = Needle::Search::VERSION
   spec.authors       = ["Nick Zadrozny"]
   spec.email         = ["nick@beyondthepath.com"]
-  spec.description   = %q{TODO: Write a gem description}
-  spec.summary       = %q{TODO: Write a gem summary}
+  spec.description   = %q{Needle is a small and opinionated search client for Ruby applications.}
+  spec.summary       = %q{A small, opinionated search client that gets right to the point.}
   spec.homepage      = ""
   spec.license       = "MIT"
 
