@@ -6,7 +6,9 @@ Needle: The sharpest and simplest way to search in Rails. It is highly opinionat
 
 Add this line to your application's Gemfile:
 
-    gem 'needle-search'
+```ruby
+gem 'needle-search'
+```
 
 And then execute:
 
@@ -80,14 +82,18 @@ Needle supports the Lucene-based search engines Solr and Elasticsearch. As such,
 
 Needle defaults to making most of your data searchable, making an effort to exclude some common sensitive information. You may want to customize exactly which models should be indexed and made searchable.
 
-    Needle.searchable.include_models = :all     # :all, or an array of classes
-    Needle.searchable.exclude_models = [ User ] # nil, or an Array of classes, strings or regular expressions
-    Needle.searchable.include_fields = :all     # :all, or an explicit array of field names
-    Needle.searchable.exclude_fields = [ /password/, /digest/, /email/ ] # nil, or an array of strings or regular expressions
+```ruby
+Needle.searchable.include_models = :all     # :all, or an array of classes
+Needle.searchable.exclude_models = [ User ] # nil, or an Array of classes, strings or regular expressions
+Needle.searchable.include_fields = :all     # :all, or an explicit array of field names
+Needle.searchable.exclude_fields = [ /password/, /digest/, /email/ ] # nil, or an array of strings or regular expressions
+```
 
 For example, a flexible approach that includes all models, and whitelists the allowed fields with explicit field names.
 
-    Needle.searchable.include_fields = %w(title name body excerpt)
+```ruby
+Needle.searchable.include_fields = %w(title name body excerpt)
+```
 
 ### Configuring text and term analysis.
 
@@ -107,7 +113,7 @@ To facilitate "hot" reindexing, Needle also scopes all index names with a global
 
 By default, Needle will retain one previous version in most environments, which you may optionally clean up manually. Or you can manually specify the number of previous versions to retain.
 
-```
+```ruby
 config.needle.index_version = 1
 config.needle.index_version_retention = 1
 ```
@@ -153,28 +159,22 @@ config.needle.index_strategy = Needle::IndexStrategy::Fixed.new(
 
 For illustration, these are what the API requests to an Elasticsearch server would look like to set up the index and its alias.
 
-```
-curl -X POST http://localhost:9200/application-development-1 -d '{
-  "settings": {
-    "index": {
-      "number_of_shards":   1,
-      "number_of_replicas": 0
-    }
-  }
-}'
+    $ curl -X POST http://localhost:9200/application-development-1 -d '{
+      "settings": {
+        "index": {
+          "number_of_shards":   1,
+          "number_of_replicas": 0
+        }
+      }
+    }'
+    
+    $ curl -X POST http://localhost:9200/_aliases -d '{
+      "actions": [{ "add": {
+        "index": "application-development-1",
+        "alias": "application-development"
+      }}]
+    }'
 
-curl -X POST http://localhost:9200/_aliases -d '{
-  "actions": [{ "add": {
-    "index": "application-development-1",
-    "alias": "application-development"
-  }}]
-}'
-```
-
-
-### Text analysis
-
-    TODO
 
 ## Usage
 
@@ -186,8 +186,9 @@ To import all of your data in batches, you can use a rake task:
 
 Or you can use the following method in Ruby:
 
-    Needle.import
-
+```ruby
+Needle.import
+```
 
 ###### How it works:
 
@@ -268,12 +269,14 @@ That said, learning some of your search engine's underlying API is almost unavoi
 
 ##### Solr
 
-    @search = Article.search({
-      q: params[:q],
-      qf: [ :title, :body ],
-      defType: 'edismax',
-      fq: { author_id: params[:author_id] }
-    })
+```ruby
+@search = Article.search({
+  q: params[:q],
+  qf: [ :title, :body ],
+  defType: 'edismax',
+  fq: { author_id: params[:author_id] }
+})
+```
 
 Our Solr connection driver does provide some minimum input sanitization and field name mapping. This is seen in the values for query fields (`qf`), which are translated into a naming convention which serves to match each field to its type. Likewise, the filter query (`fq`) maps the `author_id` field name to its type, sanitizes the input, and assembles a Lucene query for the final value.
 
@@ -281,15 +284,17 @@ Finally, the class-based search method adds an implicit filter query to limit th
 
 ##### Elasticsearch
 
-    Article.search({
-      query: {
-        text: params[:q],
-        filds: [ :title, :body ]
-      },
-      filters: [
-        { term: { author_id: params[:author_id] }}
-      ]
-    })
+```ruby
+Article.search({
+  query: {
+    text: params[:q],
+    filds: [ :title, :body ]
+  },
+  filters: [
+    { term: { author_id: params[:author_id] }}
+  ]
+})
+```
 
 The Elasticsearch query adapter is a bit more straightforward. It sanitizes incoming values before transforming the entire hash to JSON. The class-specific search method also executes its search against the `_search` handler for its corresponding type.
 
