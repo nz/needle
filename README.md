@@ -214,21 +214,23 @@ config.needle.queue = Needle::Queue::Redis.new($redis)
 
 ###### How the agent works
 
-    # As records are created or updated, an after_commit hook adds them to the relevant per-index queue.
-    Needle.index_strategy << record
-    
-    # The import agent runs in a loop, checking for indices with pending updates.
-    # Each index with pending updates is given its own thread to pull documents
-    # from its queue, serialize them into a batch, and send the update to the index.
-    #
-    while true
-      Needle.index_strategy.enumerate_indices.each do |index|
-        if index.updates_pending? && !index.import_agent.running?
-          index.import_agent.run
-        end
-      end
-      sleep 1
+```ruby
+# As records are created or updated, an after_commit hook adds them to the relevant per-index queue.
+Needle.index_strategy << record
+
+# The import agent runs in a loop, checking for indices with pending updates.
+# Each index with pending updates is given its own thread to pull documents
+# from its queue, serialize them into a batch, and send the update to the index.
+#
+while true
+  Needle.index_strategy.enumerate_indices.each do |index|
+    if index.updates_pending? && !index.import_agent.running?
+      index.import_agent.run
     end
+  end
+  sleep 1
+end
+```
 
 ### Searching your documents
 
